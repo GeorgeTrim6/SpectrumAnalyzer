@@ -1,3 +1,21 @@
+"""
+    For streaming data from a microphone in realtime
+
+    Audio data is attained using pyaudio
+    then converted from binary data to ints using struct
+    then displayed using matplotlib
+
+    Top figure plots audio data as an Oscilloscope (Time vs. Intensity)
+    Bottom figure plots audio data as a Spectrum Analyzer (Frequency  vs. Intensity)
+
+    Green dot is a marker which follows the frequency the mouse pointer is on.
+
+    Press any keyboard key to enable single shot....
+    Single shot freezes trace but still allows for marker movement...
+    press any keyboard key again to restart SpecAn
+"""
+
+
 import pyaudio
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +25,7 @@ import struct
 
 
 class AudioStream:
+
 
     def __init__(self):
         self.RATE = 44100
@@ -24,10 +43,10 @@ class AudioStream:
     def create_graph(self):
         self.fig, (self.ax, self.ax2) = plt.subplots(2)
         self.graph_style()
-        self.line, = self.ax.plot(self.xdata, np.sin(self.xdata))
-        self.line2, = self.ax2.plot(self.FREQ, self.FREQ)
-        self.line3, = self.ax2.plot(0, 0, marker='o')
-        self.line4, = self.ax2.plot(0,0, marker='o')
+        self.Oscope, = self.ax.plot(self.xdata, np.sin(self.xdata))
+        self.SpecAn, = self.ax2.plot(self.FREQ, self.FREQ)
+        self.Peak, = self.ax2.plot(0, 0, marker='o')
+        self.Marker, = self.ax2.plot(0,0, marker='o')
 
     def graph_style(self):
         self.ax.set_ylim(-127, 300)
@@ -63,10 +82,10 @@ class AudioStream:
         self.Ymark = self.X_mag_plot[self.index]
         self.text = self.ax2.text(4000, 0.9, f"Peak: {round(self.FREQ[self.xpeak+4],2)}Hz, {round(self.ypeak,4)}V")
         self.text2 = self.ax2.text(8000, 0.9, f"Marker: {round(self.Xmark,2)}Hz, {round(self.Ymark,2)}V")
-        self.line.set_data(self.xdata, self.data_np)
-        self.line2.set_data(self.FREQ, self.X_mag_plot)
-        self.line3.set_data(self.FREQ[self.xpeak+4], self.ypeak)
-        self.line4.set_data(self.Xmark, self.Ymark)
+        self.Oscope.set_data(self.xdata, self.data_np)
+        self.SpecAn.set_data(self.FREQ, self.X_mag_plot)
+        self.Peak.set_data(self.FREQ[self.xpeak+4], self.ypeak)
+        self.Marker.set_data(self.Xmark, self.Ymark)
 
     def onPress(self,event):
         if self.ani_run == True:
@@ -94,7 +113,7 @@ class AudioStream:
         self.text.remove()
         self.text2.remove()
         self.Ymark = self.X_mag_plot[self.index]
-        self.line4.set_data(self.Xmark, self.Ymark)
+        self.Marker.set_data(self.Xmark, self.Ymark)
         self.fig.canvas.draw_idle()
         self.text = self.ax2.text(self.FREQ[self.xpeak+4]+20, self.ypeak +0.1 , f"Peak: {round(self.FREQ[self.xpeak+4],2)}Hz, {round(self.ypeak,4)}V") 
         self.text2 = self.ax2.text(self.Xmark+20, self.Ymark +0.1, f"Marker: {round(self.Xmark, 2)}Hz, {round(self.Ymark, 2)}V")
@@ -109,6 +128,7 @@ class AudioStream:
 
 audio = AudioStream()
 audio.animate()
+
 
 
 
